@@ -1,17 +1,26 @@
-import React from 'react';
-import ReactDOM from 'react-dom';
-import './index.css';
-import App from './App';
-import reportWebVitals from './reportWebVitals';
+import React from "react";
+import ReactDOM from "react-dom";
+import App from "./components/app";
+
+import { BrowserRouter as Router } from "react-router-dom";
+
+import firebase from "firebase";
+
+const firebaseConfig = {
+  apiKey: "AIzaSyBUaZbWoeF5ZJs6w3PsAciF7ae6Ns0DOBg",
+  authDomain: "reactform-b2327.firebaseapp.com",
+  projectId: "reactform-b2327",
+  storageBucket: "reactform-b2327.appspot.com",
+  messagingSenderId: "99052386962",
+  appId: "1:99052386962:web:be9ebc29228ee41916844b",
+  measurementId: "G-N8Z21VFYW1",
+};
+
+firebase.initializeApp(firebaseConfig);
 
 ReactDOM.render(
-  <React.StrictMode>
+  <Router>
     <App />
-  </React.StrictMode>,
-  document.getElementById('root')
+  </Router>,
+  document.getElementById("root")
 );
-
-// If you want to start measuring performance in your app, pass a function
-// to log results (for example: reportWebVitals(console.log))
-// or send to an analytics endpoint. Learn more: https://bit.ly/CRA-vitals
-reportWebVitals();
