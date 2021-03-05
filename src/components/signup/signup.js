@@ -1,100 +1,118 @@
 import React, { useState, useEffect } from "react";
 
-import { Redirect } from "react-router";
-
 import { Link } from "react-router-dom";
 
-import firebase from "firebase";
+import Spinner from "../spinner";
+import ErrorIndicator from "../error-indicator";
+
+import firebase from "firebase/app";
 
 import "./signup.css";
-const SignUp = () => {
-  const [firstName, setFirstName] = useState("");
-  const [lastName, setLastName] = useState("");
-  const [password, setPassword] = useState("");
-  const [repeatPassword, setRepeatPassword] = useState("");
-  const [email, setEmail] = useState("");
 
-  const [validRepeatPass, setValidPass] = useState(true);
-  const [validEmail, setValidEmail] = useState(true);
+const defaultFormfields = {
+  firstName: "",
+  lastName: "",
+  password: "",
+  repeatPassword: "",
+  email: "",
+};
+
+const SignUp = () => {
+  const [formFields, setFormFields] = useState(defaultFormfields);
+
+  const { password, email, repeatPassword, firstName, lastName } = formFields;
+  const [validRepeatPass, setValidRepeatPass] = useState(true);
   const [validPassword, setValidPassword] = useState(true);
+  const [validEmail, setValidEmail] = useState(true);
   const [validFistName, setValidFirstName] = useState(true);
   const [validLastName, setValidLastName] = useState(true);
-  const [isSucces, setIsSucces] = useState(false);
 
-  useEffect(() => {}, [password, repeatPassword, email, lastName, firstName]);
+  const [isLoading, setIsLoading] = useState(false);
 
-  const onChange = (onChangeSetState, event) => {
-    const value = event.target.value;
-    onChangeSetState(value);
+  const [isError, setIsError] = useState(false);
+
+  const patternEmail = /[a-zA-Z0-9]+@[a-zA-Z0-9]+\.[a-zA-Z0-9]+/;
+  const patternPassword = /(?=.*[0-9])(?=.*[!@#$%^&*])(?=.*[a-z])(?=.*[A-Z])[0-9!@#$%^&*a-zA-Z]{6,}/g;
+  const patternName = /^([a-zA-Z-А-Яа-я]{6,16})$/;
+
+  const onChange = (event) => {
+    setFormFields((prev) => {
+      return {
+        ...prev,
+        [event.target.name]: event.target.value,
+      };
+    });
   };
 
-  const cancelState = () => {
-    setIsSucces(true);
-    setFirstName("");
-    setLastName("");
-    setPassword("");
-    setRepeatPassword("");
-    setEmail("");
-    alert("Успешная регистрация");
-  };
-
-  const userDate = {
-    firstName,
-    lastName,
-  };
-
-  const handleSubmit = (e) => {
-    const regEmail = /[a-zA-Z0-9]+@[a-zA-Z0-9]+\.[a-zA-Z0-9]+/;
-    const regPassword = /(?=.*[0-9])(?=.*[!@#$%^&*])(?=.*[a-z])(?=.*[A-Z])[0-9!@#$%^&*a-zA-Z]{6,}/g;
-    const regName = /^([a-zA-Z-А-Яа-я]{6,16})$/;
-
-    if (password === repeatPassword) {
-      setValidPass(true);
+  useEffect(() => {
+    if (patternName.test(firstName)) {
+      setValidFirstName(true);
     } else {
-      setValidPass(false);
+      setValidFirstName(false);
     }
-
-    if (regEmail.test(email)) {
+    if (patternName.test(lastName)) {
+      setValidLastName(true);
+    } else {
+      setValidLastName(false);
+    }
+    if (patternEmail.test(email)) {
       setValidEmail(true);
     } else {
       setValidEmail(false);
     }
 
-    if (regPassword.test(password)) {
-      if (password === repeatPassword) {
-        setValidPassword(true);
-      }
+    if (patternPassword.test(password)) {
+      setValidPassword(true);
     } else {
       setValidPassword(false);
     }
-
-    if (regName.test(firstName)) {
-      setValidFirstName(true);
+    if (password === repeatPassword) {
+      setValidRepeatPass(true);
     } else {
-      setValidFirstName(false);
+      setValidRepeatPass(false);
     }
-    if (regName.test(lastName)) {
-      setValidLastName(true);
-    } else {
-      setValidLastName(false);
-    }
-
-    e.preventDefault();
-    if (!validFistName) {
+    if (repeatPassword !== password) {
       return;
     }
-    firebase
-      .auth()
-      .createUserWithEmailAndPassword(email, password)
-      .then((res) => cancelState())
-      .catch((error) => console.log("erorr"));
-    localStorage.setItem("Name", JSON.stringify(userDate));
+    return () => {};
+  }, [password, email, repeatPassword, firstName, lastName]);
+
+  const createAccount = () => {
+    if (validRepeatPass) {
+      firebase
+        .auth()
+        .createUserWithEmailAndPassword(formFields.email, formFields.password)
+        .then((res) => cancelState())
+        .then((res) => setIsError(false))
+        .catch((error) => setIsError(true));
+    }
   };
 
-  if (isSucces) {
-    return <Redirect push to="/" />;
+  const handleSubmit = (event) => {
+    event.preventDefault();
+    createAccount();
+  };
+
+  const cancelState = () => {
+    setFormFields(defaultFormfields);
+    setIsLoading(true);
+    setIsError(false);
+    setValidFirstName(false);
+    setValidLastName(false);
+    setValidEmail(false);
+    setValidPassword(false);
+    setValidRepeatPass(false);
+  };
+
+  if (isLoading) {
+    setTimeout(() => {
+      setIsLoading(false);
+    }, 3000);
   }
-  return (
+
+  return isLoading ? (
+    <Spinner />
+  ) : (
     <div className="jumbotron">
       <form onSubmit={handleSubmit}>
         <div className="form-row col">
@@ -103,8 +121,9 @@ const SignUp = () => {
               type="text"
               className="form-control"
               placeholder="FirstName"
-              onChange={(event) => onChange(setFirstName, event)}
-              value={firstName}
+              onChange={(event) => onChange(event)}
+              value={formFields.firstName}
+              name="firstName"
             />
             <span className="error">
               {!validFistName && "Name must be 6 letters or more"}
@@ -115,8 +134,9 @@ const SignUp = () => {
               type="text"
               className="form-control"
               placeholder="LastName"
-              onChange={(event) => onChange(setLastName, event)}
-              value={lastName}
+              onChange={(event) => onChange(event)}
+              value={formFields.lastName}
+              name="lastName"
             />
             <span className="error">
               {!validLastName && "Name must be 6 letters or more"}
@@ -128,8 +148,9 @@ const SignUp = () => {
               type="email"
               className="form-control"
               id="inputEmail4"
-              onChange={(event) => onChange(setEmail, event)}
-              value={email}
+              onChange={(event) => onChange(event)}
+              value={formFields.email}
+              name="email"
             />
             <span className="error">
               {!validEmail && "Email should collect @ symbol and path"}
@@ -140,9 +161,11 @@ const SignUp = () => {
             <input
               type="password"
               className="form-control"
-              id="inputPassword4"
-              onChange={(event) => onChange(setPassword, event)}
-              value={password}
+              id="inputPassword5"
+              autoComplete="on"
+              onChange={(event) => onChange(event)}
+              value={formFields.password}
+              name="password"
             />
           </div>
           <div className="col">
@@ -151,16 +174,18 @@ const SignUp = () => {
               type="password"
               className="form-control"
               id="inputPassword4"
-              onChange={(event) => onChange(setRepeatPassword, event)}
-              value={repeatPassword}
+              autoComplete="on"
+              onChange={(event) => onChange(event)}
+              value={formFields.repeatPassword}
+              name="repeatPassword"
             />
             <div className="errors">
               <span className="error">
-                {!validRepeatPass && "Wrong password."}
+                {!validRepeatPass && "Confirm password."}
               </span>
               <span className="error">
                 {!validPassword &&
-                  "Password must contain at least six numbers, letters and symbols."}
+                  "Password must contain at least six numbers, lowercase and uppercase, letters and symbols."}
               </span>
             </div>
           </div>
@@ -174,6 +199,7 @@ const SignUp = () => {
           </div>
         </div>
       </form>
+      {isError && <ErrorIndicator />}
     </div>
   );
 };

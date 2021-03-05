@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useState } from "react";
 
 import { Redirect } from "react-router";
 
@@ -12,12 +12,11 @@ const SignIn = () => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [isAuth, setIsAuth] = useState(false);
-console.log(isAuth);
-  useEffect(() => {}, [email, password, isAuth]);
 
   const onChangeState = (arg, e) => {
     arg(e.target.value);
   };
+
   const clearState = () => {
     setEmail("");
     setPassword("");
@@ -32,6 +31,7 @@ console.log(isAuth);
       .then((res) => clearState())
       .catch((error) => console.log(error));
   };
+  console.log(isAuth);
   if (isAuth) {
     return <Redirect push to="/home" />;
   }
