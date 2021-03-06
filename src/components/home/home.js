@@ -1,21 +1,11 @@
-import React, { useState } from "react";
+import React from "react";
 
 import { Link } from "react-router-dom";
-import Spinner from "../spinner/spinner";
 
 import "./home.css";
 
 const Home = () => {
-  const [isLoadding, setIsLoading] = useState(true);
-
-  const loadingChange = () => {
-    setIsLoading(false);
-  };
-  setTimeout(loadingChange, 3000);
-
-  return isLoadding ? (
-    <Spinner />
-  ) : (
+  return (
     <div className="jumbotron">
       <div className="row">
         <h1>Welcome to your account</h1>

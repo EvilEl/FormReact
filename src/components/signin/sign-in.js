@@ -7,8 +7,11 @@ import { Link } from "react-router-dom";
 import firebase from "firebase";
 
 import "./sign-in.css";
+import useForm from "../use-form";
 
 const SignIn = () => {
+  const { formFields, onChange } = useForm();
+  console.log(formFields.email);
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [isAuth, setIsAuth] = useState(false);
@@ -31,13 +34,13 @@ const SignIn = () => {
       .then((res) => clearState())
       .catch((error) => console.log(error));
   };
-  console.log(isAuth);
+
   if (isAuth) {
     return <Redirect push to="/home" />;
   }
   return (
     <div className="jumbotron">
-      <form onSubmit={handleSubmit}>
+      <form onSubmit={handleSubmit} noValidate>
         <div className="form-group row email">
           <label>Email address</label>
           <input

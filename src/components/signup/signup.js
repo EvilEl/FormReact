@@ -1,6 +1,6 @@
-import React, { useState, useEffect } from "react";
+import React, { useState } from "react";
 
-import { Link } from "react-router-dom";
+import { Link, Redirect } from "react-router-dom";
 
 import Spinner from "../spinner";
 import ErrorIndicator from "../error-indicator";
@@ -8,17 +8,24 @@ import ErrorIndicator from "../error-indicator";
 import firebase from "firebase/app";
 
 import "./signup.css";
+import useForm from "../use-form";
 
-const defaultFormfields = {
-  firstName: "",
-  lastName: "",
-  password: "",
-  repeatPassword: "",
-  email: "",
-};
+// const defaultFormfields = {
+//   firstName: "",
+//   lastName: "",
+//   password: "",
+//   repeatPassword: "",
+//   email: "",
+// };
 
 const SignUp = () => {
-  const [formFields, setFormFields] = useState(defaultFormfields);
+  // const [formFields, setFormFields] = useState(defaultFormfields);
+
+  const { formFields, onChange } = useForm(submit);
+
+  function submit() {
+    console.log("YEs");
+  }
 
   const { password, email, repeatPassword, firstName, lastName } = formFields;
   const [validRepeatPass, setValidRepeatPass] = useState(true);
@@ -35,16 +42,33 @@ const SignUp = () => {
   const patternPassword = /(?=.*[0-9])(?=.*[!@#$%^&*])(?=.*[a-z])(?=.*[A-Z])[0-9!@#$%^&*a-zA-Z]{6,}/g;
   const patternName = /^([a-zA-Z-А-Яа-я]{6,16})$/;
 
-  const onChange = (event) => {
-    setFormFields((prev) => {
-      return {
-        ...prev,
-        [event.target.name]: event.target.value,
-      };
-    });
+  // const onChange = (event) => {
+  //   const { name, value } = event.target;
+  //   setFormFields((prev) => {
+  //     return {
+  //       ...prev,
+  //       [name]: value,
+  //     };
+  //   });
+  // };
+
+  const createAccount = () => {
+    if (validRepeatPass) {
+      firebase
+        .auth()
+        .createUserWithEmailAndPassword(formFields.email, formFields.password)
+        .then((res) => {
+          if (res.additionalUserInfo.isNewUser) {
+            setIsLoading(true);
+            return <Redirect push to="/home" />;
+          }
+        })
+        .catch((error) => setIsError(true));
+    }
   };
 
-  useEffect(() => {
+  const handleSubmit = (event) => {
+    event.preventDefault();
     if (patternName.test(firstName)) {
       setValidFirstName(true);
     } else {
@@ -74,41 +98,20 @@ const SignUp = () => {
     if (repeatPassword !== password) {
       return;
     }
-    return () => {};
-  }, [password, email, repeatPassword, firstName, lastName]);
 
-  const createAccount = () => {
-    if (validRepeatPass) {
-      firebase
-        .auth()
-        .createUserWithEmailAndPassword(formFields.email, formFields.password)
-        .then((res) => cancelState())
-        .then((res) => setIsError(false))
-        .catch((error) => setIsError(true));
-    }
-  };
-
-  const handleSubmit = (event) => {
-    event.preventDefault();
     createAccount();
   };
 
-  const cancelState = () => {
-    setFormFields(defaultFormfields);
-    setIsLoading(true);
-    setIsError(false);
-    setValidFirstName(false);
-    setValidLastName(false);
-    setValidEmail(false);
-    setValidPassword(false);
-    setValidRepeatPass(false);
-  };
-
-  if (isLoading) {
-    setTimeout(() => {
-      setIsLoading(false);
-    }, 3000);
-  }
+  // const cancelState = () => {
+  //   setFormFields(defaultFormfields);
+  //   setIsLoading(true);
+  //   setIsError(false);
+  //   setValidFirstName(false);
+  //   setValidLastName(false);
+  //   setValidEmail(false);
+  //   setValidPassword(false);
+  //   setValidRepeatPass(false);
+  // };
 
   return isLoading ? (
     <Spinner />
