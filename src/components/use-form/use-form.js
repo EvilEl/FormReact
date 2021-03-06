@@ -1,7 +1,7 @@
-import React from "react";
+import { useState } from "react";
 
 const useForm = (callback) => {
-  const [formFields, setFormFields] = React.useState({
+  const [formFields, setFormFields] = useState({
     firstName: "",
     lastName: "",
     password: "",
@@ -17,10 +17,9 @@ const useForm = (callback) => {
       };
     });
   };
-  callback();
   return {
-    formFields: formFields,
-    onChange: onChange,
+    formFields,
+    onChange,
   };
 };
 export default useForm;

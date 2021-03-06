@@ -1,26 +1,34 @@
 import React from "react";
 
-import { Switch, Route } from "react-router-dom";
+import { Switch, Route, Redirect } from "react-router-dom";
+
 import Auth from "../auth";
 import SignIn from "../signin";
 import SignUp from "../signup";
 import Home from "../home/home";
 
 const App = () => {
-  return (
+  const [isAuth, setIsAuth] = React.useState(false);
+
+  return !isAuth ? (
     <Switch>
       <Route path="/" exact>
         <Auth />
       </Route>
       <Route path="/signin/">
-        <SignIn />
+        <SignIn setIsAuth={setIsAuth} />
       </Route>
       <Route path="/signup/">
         <SignUp />
       </Route>
-      <Route path="/home">
-        <Home />
+      <Redirect from="/" to="/" />
+    </Switch>
+  ) : (
+    <Switch>
+      <Route path="/">
+        <Home setIsAuth={setIsAuth} />
       </Route>
+      <Redirect from="/" to="/" />
     </Switch>
   );
 };

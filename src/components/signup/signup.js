@@ -1,31 +1,18 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 
-import { Link, Redirect } from "react-router-dom";
+import { Link, useHistory } from "react-router-dom";
 
 import Spinner from "../spinner";
-import ErrorIndicator from "../error-indicator";
 
 import firebase from "firebase/app";
 
 import "./signup.css";
 import useForm from "../use-form";
 
-// const defaultFormfields = {
-//   firstName: "",
-//   lastName: "",
-//   password: "",
-//   repeatPassword: "",
-//   email: "",
-// };
-
 const SignUp = () => {
-  // const [formFields, setFormFields] = useState(defaultFormfields);
+  const { onChange, formFields } = useForm();
 
-  const { formFields, onChange } = useForm(submit);
-
-  function submit() {
-    console.log("YEs");
-  }
+  let history = useHistory();
 
   const { password, email, repeatPassword, firstName, lastName } = formFields;
   const [validRepeatPass, setValidRepeatPass] = useState(true);
@@ -36,34 +23,25 @@ const SignUp = () => {
 
   const [isLoading, setIsLoading] = useState(false);
 
-  const [isError, setIsError] = useState(false);
-
   const patternEmail = /[a-zA-Z0-9]+@[a-zA-Z0-9]+\.[a-zA-Z0-9]+/;
   const patternPassword = /(?=.*[0-9])(?=.*[!@#$%^&*])(?=.*[a-z])(?=.*[A-Z])[0-9!@#$%^&*a-zA-Z]{6,}/g;
   const patternName = /^([a-zA-Z-А-Яа-я]{6,16})$/;
 
-  // const onChange = (event) => {
-  //   const { name, value } = event.target;
-  //   setFormFields((prev) => {
-  //     return {
-  //       ...prev,
-  //       [name]: value,
-  //     };
-  //   });
-  // };
+  useEffect(() => {
+    return () => {};
+  }, []);
 
   const createAccount = () => {
     if (validRepeatPass) {
+      setIsLoading(true);
       firebase
         .auth()
         .createUserWithEmailAndPassword(formFields.email, formFields.password)
         .then((res) => {
-          if (res.additionalUserInfo.isNewUser) {
-            setIsLoading(true);
-            return <Redirect push to="/home" />;
-          }
+          history.push("/");
         })
-        .catch((error) => setIsError(true));
+        .finally(() => setIsLoading(false))
+        .catch((error) => setIsLoading(false));
     }
   };
 
@@ -102,20 +80,7 @@ const SignUp = () => {
     createAccount();
   };
 
-  // const cancelState = () => {
-  //   setFormFields(defaultFormfields);
-  //   setIsLoading(true);
-  //   setIsError(false);
-  //   setValidFirstName(false);
-  //   setValidLastName(false);
-  //   setValidEmail(false);
-  //   setValidPassword(false);
-  //   setValidRepeatPass(false);
-  // };
-
-  return isLoading ? (
-    <Spinner />
-  ) : (
+  return (
     <div className="jumbotron">
       <form onSubmit={handleSubmit}>
         <div className="form-row col">
@@ -202,7 +167,7 @@ const SignUp = () => {
           </div>
         </div>
       </form>
-      {isError && <ErrorIndicator />}
+      {isLoading && <Spinner />}
     </div>
   );
 };

@@ -4,7 +4,7 @@ import "./spinner.css";
 
 const Spinner = () => {
   return (
-    <div id="fountainTextG">
+    <div id="fountainTextG" className="center">
       <div id="fountainTextG_1" className="fountainTextG">
         L
       </div>

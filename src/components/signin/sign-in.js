@@ -1,43 +1,34 @@
 import React, { useState } from "react";
 
-import { Redirect } from "react-router";
-
 import { Link } from "react-router-dom";
+
+import Spinner from "../spinner";
 
 import firebase from "firebase";
 
 import "./sign-in.css";
-import useForm from "../use-form";
 
-const SignIn = () => {
-  const { formFields, onChange } = useForm();
-  console.log(formFields.email);
+const SignIn = (props) => {
+  const { setIsAuth } = props;
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
-  const [isAuth, setIsAuth] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
 
   const onChangeState = (arg, e) => {
     arg(e.target.value);
   };
-
-  const clearState = () => {
-    setEmail("");
-    setPassword("");
-    setIsAuth(true);
-  };
-
   const handleSubmit = (e) => {
     e.preventDefault();
+    setIsLoading(true);
+
     firebase
       .auth()
       .signInWithEmailAndPassword(email, password)
-      .then((res) => clearState())
+      .then((res) => setIsAuth(true))
+      .finally(() => setIsLoading(false))
       .catch((error) => console.log(error));
   };
 
-  if (isAuth) {
-    return <Redirect push to="/home" />;
-  }
   return (
     <div className="jumbotron">
       <form onSubmit={handleSubmit} noValidate>
@@ -74,6 +65,7 @@ const SignIn = () => {
           </Link>
         </div>
       </form>
+      {isLoading && <Spinner />}
     </div>
   );
 };

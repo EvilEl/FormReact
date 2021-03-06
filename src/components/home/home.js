@@ -4,7 +4,12 @@ import { Link } from "react-router-dom";
 
 import "./home.css";
 
-const Home = () => {
+const Home = (props) => {
+  const { setIsAuth } = props;
+
+  const change = () => {
+    setIsAuth(false);
+  };
   return (
     <div className="jumbotron">
       <div className="row">
@@ -15,7 +20,7 @@ const Home = () => {
         </div>
       </div>
       <div className="row link">
-        <Link to="/" className="btn btn-outline-primary link">
+        <Link to="/" className="btn btn-outline-primary link" onClick={change}>
           sign out
         </Link>
       </div>

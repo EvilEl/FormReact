@@ -156,9 +156,3 @@
 	}
 }
 
-.center{
-  display: flex;
-  margin-top: 60px;
-  margin-left: 100px;
-  justify-content: center;
-}
