@@ -6,3 +6,13 @@
 .right{
     margin-right: 30px;
 }
+
+.jumbotron{
+    background: #330033;
+    height: 100vh;
+    margin: 0;
+}
+
+label{
+    color: white;
+}

@@ -10,6 +10,8 @@ import Home from "../home/home";
 const App = () => {
   const [isAuth, setIsAuth] = React.useState(false);
 
+  const [isSibmiting, setIsSibmiting] = React.useState(false);
+
   return !isAuth ? (
     <Switch>
       <Route path="/" exact>
@@ -19,7 +21,7 @@ const App = () => {
         <SignIn setIsAuth={setIsAuth} />
       </Route>
       <Route path="/signup/">
-        <SignUp />
+        <SignUp setIsSibmiting={setIsSibmiting} isSibmiting={isSibmiting} />
       </Route>
       <Redirect from="/" to="/" />
     </Switch>

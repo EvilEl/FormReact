@@ -2,112 +2,80 @@ import React, { useEffect, useState } from "react";
 
 import { Link, useHistory } from "react-router-dom";
 
-import Spinner from "../spinner";
-
 import firebase from "firebase/app";
 
 import "./signup.css";
-import useForm from "../use-form";
+import useForm from "../../utilts/use-form";
+import Spinner from "../spinner";
 
-const SignUp = () => {
-  const { onChange, formFields } = useForm();
+const defaltValues = {
+  firstName: "",
+  lastName: "",
+  password: "",
+  password2: "",
+  email: "",
+};
 
-  let history = useHistory();
+const SignUp = (props) => {
+  const { setIsSibmiting, isSibmiting } = props;
 
-  const { password, email, repeatPassword, firstName, lastName } = formFields;
-  const [validRepeatPass, setValidRepeatPass] = useState(true);
-  const [validPassword, setValidPassword] = useState(true);
-  const [validEmail, setValidEmail] = useState(true);
-  const [validFistName, setValidFirstName] = useState(true);
-  const [validLastName, setValidLastName] = useState(true);
+  const createAccount = () => {
+    setIsLoading(true);
+    firebase
+      .auth()
+      .createUserWithEmailAndPassword(email, password)
+      .then((res) => {
+        history.push("/");
+      })
+      .finally(() => setIsLoading(false), setIsSibmiting(false))
+      .catch((error) => setIsLoading(false));
+  };
+
+  const [formFields, onChange, handleSubmit, errors] = useForm(
+    createAccount,
+    defaltValues,
+    setIsSibmiting,
+    isSibmiting
+  );
 
   const [isLoading, setIsLoading] = useState(false);
 
-  const patternEmail = /[a-zA-Z0-9]+@[a-zA-Z0-9]+\.[a-zA-Z0-9]+/;
-  const patternPassword = /(?=.*[0-9])(?=.*[!@#$%^&*])(?=.*[a-z])(?=.*[A-Z])[0-9!@#$%^&*a-zA-Z]{6,}/g;
-  const patternName = /^([a-zA-Z-А-Яа-я]{6,16})$/;
+  const { password, email, password2, firstName, lastName } = formFields;
 
   useEffect(() => {
     return () => {};
   }, []);
 
-  const createAccount = () => {
-    if (validRepeatPass) {
-      setIsLoading(true);
-      firebase
-        .auth()
-        .createUserWithEmailAndPassword(formFields.email, formFields.password)
-        .then((res) => {
-          history.push("/");
-        })
-        .finally(() => setIsLoading(false))
-        .catch((error) => setIsLoading(false));
-    }
-  };
-
-  const handleSubmit = (event) => {
-    event.preventDefault();
-    if (patternName.test(firstName)) {
-      setValidFirstName(true);
-    } else {
-      setValidFirstName(false);
-    }
-    if (patternName.test(lastName)) {
-      setValidLastName(true);
-    } else {
-      setValidLastName(false);
-    }
-    if (patternEmail.test(email)) {
-      setValidEmail(true);
-    } else {
-      setValidEmail(false);
-    }
-
-    if (patternPassword.test(password)) {
-      setValidPassword(true);
-    } else {
-      setValidPassword(false);
-    }
-    if (password === repeatPassword) {
-      setValidRepeatPass(true);
-    } else {
-      setValidRepeatPass(false);
-    }
-    if (repeatPassword !== password) {
-      return;
-    }
-
-    createAccount();
-  };
+  let history = useHistory();
 
   return (
     <div className="jumbotron">
       <form onSubmit={handleSubmit}>
         <div className="form-row col">
           <div className="col">
+            <label>FirstName</label>
             <input
               type="text"
               className="form-control"
-              placeholder="FirstName"
               onChange={(event) => onChange(event)}
-              value={formFields.firstName}
+              value={firstName}
               name="firstName"
             />
             <span className="error">
-              {!validFistName && "Name must be 6 letters or more"}
+              {errors.firstName && "Name must be 6 letters or more"}
             </span>
           </div>
           <div className="col">
+            <label>LastName</label>
             <input
               type="text"
               className="form-control"
-              placeholder="LastName"
               onChange={(event) => onChange(event)}
-              value={formFields.lastName}
+              value={lastName}
               name="lastName"
             />
             <span className="error">
-              {!validLastName && "Name must be 6 letters or more"}
+              {errors.lastName && "Name must be 6 letters or more"}
             </span>
           </div>
           <div className="col">
@@ -117,11 +85,11 @@ const SignUp = () => {
               className="form-control"
               id="inputEmail4"
               onChange={(event) => onChange(event)}
-              value={formFields.email}
+              value={email}
               name="email"
             />
             <span className="error">
-              {!validEmail && "Email should collect @ symbol and path"}
+              {errors.email && "Email should collect @ symbol and path"}
             </span>
           </div>
           <div className="col">
@@ -132,9 +100,10 @@ const SignUp = () => {
               id="inputPassword5"
               autoComplete="on"
               onChange={(event) => onChange(event)}
-              value={formFields.password}
+              value={password}
               name="password"
             />
+            {errors.password && <p className="error">{errors.password}</p>}
           </div>
           <div className="col">
             <label> Repeat Password</label>
@@ -144,17 +113,11 @@ const SignUp = () => {
               id="inputPassword4"
               autoComplete="on"
               onChange={(event) => onChange(event)}
-              value={formFields.repeatPassword}
-              name="repeatPassword"
+              value={password2}
+              name="password2"
             />
             <div className="errors">
-              <span className="error">
-                {!validRepeatPass && "Confirm password."}
-              </span>
-              <span className="error">
-                {!validPassword &&
-                  "Password must contain at least six numbers, lowercase and uppercase, letters and symbols."}
-              </span>
+              {errors.password2 && <p className="error">{errors.password2}</p>}
             </div>
           </div>
           <div className="row">
