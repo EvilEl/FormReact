@@ -43,6 +43,21 @@ const SignUp = (props) => {
   const { password, email, password2, firstName, lastName } = formFields;
 
   useEffect(() => {
+    if (firstName.length > 0) {
+      errors.firstName = "";
+    }
+    if (lastName.length > 0) {
+      errors.lastName = "";
+    }
+    if (email.length > 0) {
+      errors.email = "";
+    }
+    if (password.length > 0) {
+      errors.password = "";
+    }
+  });
+
+  useEffect(() => {
     return () => {};
   }, []);
 
@@ -50,7 +65,7 @@ const SignUp = (props) => {
 
   return (
     <div className="jumbotron">
-      <form onSubmit={handleSubmit}>
+      <form onSubmit={handleSubmit} noValidate>
         <div className="form-row col">
           <div className="col">
             <label>FirstName</label>
@@ -61,9 +76,7 @@ const SignUp = (props) => {
               value={firstName}
               name="firstName"
             />
-            <span className="error">
-              {errors.firstName && "Name must be 6 letters or more"}
-            </span>
+            {errors.firstName && <p className="error">{errors.firstName}</p>}
           </div>
           <div className="col">
             <label>LastName</label>
@@ -74,9 +87,7 @@ const SignUp = (props) => {
               value={lastName}
               name="lastName"
             />
-            <span className="error">
-              {errors.lastName && "Name must be 6 letters or more"}
-            </span>
+            {errors.lastName && <p className="error">{errors.lastName}</p>}
           </div>
           <div className="col">
             <label>Email</label>
@@ -88,9 +99,7 @@ const SignUp = (props) => {
               value={email}
               name="email"
             />
-            <span className="error">
-              {errors.email && "Email should collect @ symbol and path"}
-            </span>
+            {errors.email && <p className="error">{errors.email}</p>}
           </div>
           <div className="col">
             <label>Password</label>

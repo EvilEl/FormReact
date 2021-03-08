@@ -2,9 +2,13 @@ const errorsForm = (values) => {
   let errors = {};
   if (!values.firstName.trim()) {
     errors.firstName = "FirstName required";
+  } else if (values.firstName.length < 6) {
+    errors.firstName = "FirstName needs to be 6 characters or more";
   }
   if (!values.lastName.trim()) {
     errors.lastName = "LastName required";
+  } else if (values.firstName.length < 6) {
+    errors.lastName = "LastName needs to be 6 characters or more";
   }
   if (!values.email) {
     errors.email = "email required";
